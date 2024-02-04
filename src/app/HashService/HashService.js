@@ -10,7 +10,7 @@ export class HashService {
       const hash = createHash('sha256');
       const input = createReadStream(pathToFile);
 
-      return new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         input.on('data', (data) => hash.update(data));
         input.on('end', () => resolve(console.log(hash.digest('hex'))));
         input.on('error', () => reject());

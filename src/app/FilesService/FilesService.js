@@ -6,31 +6,13 @@ import { operationFailed } from '../../utils/operationFailed.js';
 import { printCurrentDirectory } from '../../utils/printCurrentDirectory.js';
 
 export class FilesService {
-  async listDirectory(currentWorkingDirectory) {
-    try {
-      const content = await readdir(currentWorkingDirectory);
-      const items = await Promise.all(content.map(async item => {
-        const fullPath = join(currentWorkingDirectory, item);
-        const type = (await stat(fullPath)).isDirectory() ? 'Directory' : 'File';
-        return { item, type };
-      }));
-
-      sortItemsForLS(items);
-      
-      console.table(items, ['item', 'type']);
-      printCurrentDirectory();
-    } catch {
-      operationFailed();
-    }
-  }
-
   readFile(currentWorkingDirectory, fileName) {
     const filePath = join(currentWorkingDirectory, fileName);
     const fileStream = createReadStream(filePath, 'utf-8');
 
     fileStream.on('data', chunk => {
       console.log(chunk);
-      printCurrentDirectory();
+      printCurrentDirectory(currentWorkingDirectory);
     });
 
     fileStream.on('error', () => operationFailed());
@@ -40,7 +22,7 @@ export class FilesService {
     try {
       const filePath = join(currentWorkingDirectory, fileName);
       await writeFile(filePath, '', { flag: 'wx' });
-      printCurrentDirectory();
+      printCurrentDirectory(currentWorkingDirectory);
     } catch {
       operationFailed();
     }
@@ -51,7 +33,7 @@ export class FilesService {
       const oldFilePath = join(currentWorkingDirectory, oldFile);
       const newFilePath = join(path.dirname(oldFilePath), newFile);
       await rename(oldFilePath, newFilePath);
-      printCurrentDirectory();
+      printCurrentDirectory(currentWorkingDirectory);
     } catch {
       operationFailed();
     }
@@ -76,7 +58,7 @@ export class FilesService {
         sourceStream.on('end', resolve);
         sourceStream.on('error', reject);
       })
-      printCurrentDirectory();
+      printCurrentDirectory(currentWorkingDirectory);
     } catch {
       operationFailed();
     }
