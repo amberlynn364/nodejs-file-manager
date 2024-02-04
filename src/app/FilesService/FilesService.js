@@ -24,7 +24,8 @@ export class FilesService {
     }
   }
 
-  readFile(filePath) {
+  readFile(currentWorkingDirectory, fileName) {
+    const filePath = join(currentWorkingDirectory, fileName);
     const fileStream = createReadStream(filePath, 'utf-8');
 
     fileStream.on('data', chunk => {
